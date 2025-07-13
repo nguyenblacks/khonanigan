@@ -42,6 +42,68 @@
             padding-bottom: 0; /* Will be adjusted by media queries if bottom nav is present */
         }
 
+        body.dark-theme {
+            --primary-color: #4a90e2;
+            --secondary-color: #9044ec;
+            --accent-color: #ff4d8a;
+            --dark-color: #f8f9fa;
+            --light-color: #1a1a2e;
+            --gray-color: #adb5bd;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .post-card,
+        .dark-theme .profile-header,
+        .dark-theme .user-list-page,
+        .dark-theme .message-section,
+        .dark-theme .search-page-container {
+            background-color: #1e1e1e;
+            border-color: #333;
+        }
+
+        .dark-theme .header,
+        .dark-theme .sidebar,
+        .dark-theme .bottom-nav {
+            background-color: #1e1e1e;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .dark-theme .post-user-info h4,
+        .dark-theme .profile-name,
+        .dark-theme .nav-link {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .post-text,
+        .dark-theme .profile-bio {
+            color: #b0b0b0;
+        }
+
+        .dark-theme .modal-content,
+        .dark-theme .chat-modal-content {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        .dark-theme .modal-header,
+        .dark-theme .chat-header {
+            border-bottom-color: #333;
+        }
+
+        .dark-theme input,
+        .dark-theme textarea,
+        .dark-theme select {
+            background-color: #333;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+
+        .dark-theme .message-bubble.received {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+
         /* Skeleton Loader CSS */
         /* Updated Shimmer Effect */
         @keyframes shimmer {
@@ -948,7 +1010,6 @@
             overscroll-behavior-y: contain;
             z-index: 1000;
             display: none;
-            padding-bottom: 60px; /* Space for bottom nav */
         }
         .reels-header {
             position: sticky;
@@ -995,7 +1056,7 @@
         .reel-actions {
             position: absolute;
             right: 15px;
-            bottom: 15px;
+            bottom: 80px; /* Adjusted for bottom nav */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1026,7 +1087,7 @@
 
         .reel-user {
             position: absolute;
-            bottom: 15px;
+            bottom: 80px; /* Adjusted for bottom nav */
             left: 15px;
             display: flex;
             align-items: center;
@@ -9757,9 +9818,31 @@
                 mediaItem.className = 'profile-grid-item';
                 mediaItem.innerHTML = `
                     <img src="${media.mediaUrl}" style="width:100%; height:100%; object-fit:cover;">
-                    <a href="${media.mediaUrl}" download="swavoti-media.jpg" class="profile-btn secondary-btn" style="position:absolute; bottom:5px; right:5px; padding: 5px 8px; font-size:12px;"><i class="fas fa-download"></i></a>
+                    <button class="profile-btn secondary-btn download-media-btn" data-url="${media.mediaUrl}" style="position:absolute; bottom:5px; right:5px; padding: 5px 8px; font-size:12px;"><i class="fas fa-download"></i></button>
                 `;
                 mediaGrid.appendChild(mediaItem);
+            });
+
+            document.querySelectorAll('.download-media-btn').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const url = e.currentTarget.dataset.url;
+                    try {
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = blobUrl;
+                        a.download = 'swavoti-media.jpg';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(blobUrl);
+                        a.remove();
+                        showNotification('Downloading media...', 'success');
+                    } catch (err) {
+                        showNotification('Failed to download media.', 'error');
+                    }
+                });
             });
         }
 
